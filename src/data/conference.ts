@@ -1,0 +1,107 @@
+import type { Conference } from "../domain.ts";
+
+/** Sample conference: instants are UTC; the event runs in Europe/Amsterdam (UTC+1 in November). */
+export const conference: Conference = {
+  event: {
+    name: "AgentConf 2026",
+    timeZone: "Europe/Amsterdam",
+    startsOn: "2026-11-18",
+    endsOn: "2026-11-19",
+  },
+  tracks: [
+    { slug: "main", name: "Main stage" },
+    { slug: "agents", name: "Agents in practice" },
+    { slug: "platform", name: "Platform" },
+  ],
+  speakers: [
+    {
+      id: "ada",
+      name: "Ada Okafor",
+      company: "Lattice Labs",
+      bio: "Builds planning tools for agent teams.",
+    },
+    {
+      id: "ben",
+      name: "Ben de Vries",
+      company: "Northwind",
+      bio: "Runs a fleet of pull-based coding agents.",
+    },
+    {
+      id: "chen",
+      name: "Chen Wei",
+      company: "Graphwork",
+      bio: "Works on dependency graphs at scale.",
+    },
+    {
+      id: "dana",
+      name: "Dana Kowalski",
+      company: "Evalcraft",
+      bio: "Measures what agents actually ship.",
+    },
+  ],
+  sessions: [
+    {
+      id: "keynote",
+      title: "Opening keynote: a ledger for agent teams",
+      trackSlug: "main",
+      speakerIds: ["ada"],
+      room: "Auditorium",
+      startsAt: "2026-11-18T08:00:00Z",
+      endsAt: "2026-11-18T08:45:00Z",
+    },
+    {
+      id: "pull-agents",
+      title: "Pull-based agents in practice",
+      trackSlug: "agents",
+      speakerIds: ["ben"],
+      room: "Room A",
+      startsAt: "2026-11-18T08:45:00Z",
+      endsAt: "2026-11-18T09:30:00Z",
+    },
+    {
+      id: "graphs",
+      title: "Dependency graphs at scale",
+      trackSlug: "platform",
+      speakerIds: ["chen"],
+      room: "Room B",
+      startsAt: "2026-11-18T09:00:00Z",
+      endsAt: "2026-11-18T09:45:00Z",
+    },
+    {
+      id: "evals",
+      title: "Evaluating agent output",
+      trackSlug: "agents",
+      speakerIds: ["dana"],
+      room: "Room A",
+      startsAt: "2026-11-18T10:00:00Z",
+      endsAt: "2026-11-18T10:45:00Z",
+    },
+    {
+      id: "fleet-ops",
+      title: "Operating agent fleets",
+      trackSlug: "platform",
+      speakerIds: ["chen", "dana"],
+      room: "Room B",
+      startsAt: "2026-11-18T13:00:00Z",
+      endsAt: "2026-11-18T13:45:00Z",
+    },
+    {
+      id: "late-social",
+      title: "Late-night social",
+      trackSlug: "main",
+      speakerIds: [],
+      room: "Rooftop",
+      startsAt: "2026-11-18T22:30:00Z",
+      endsAt: "2026-11-18T23:30:00Z",
+    },
+    {
+      id: "closing",
+      title: "Closing panel",
+      trackSlug: "main",
+      speakerIds: ["ada", "ben"],
+      room: "Auditorium",
+      startsAt: "2026-11-19T15:00:00Z",
+      endsAt: "2026-11-19T15:45:00Z",
+    },
+  ],
+};
