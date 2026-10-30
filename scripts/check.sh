@@ -7,7 +7,8 @@
 # A project is projects/<slug>/ with an executable-or-not check.sh entry point. Projects whose
 # directory starts with "_" (projects/_faults/) are fixtures and are never checked. A change
 # outside projects/ (mise.toml, scripts/, .github/) checks every project; root *.md files
-# check nothing. Without a main ref to compare to (a shallow clone), every project is checked.
+# check nothing. Without a merge base (a shallow or single-branch clone) it first fetches main
+# from origin, deepening as needed, and only then checks every project, saying which it did.
 # BASE_REF overrides the ref compared against (default: origin/main, then main).
 set -euo pipefail
 
@@ -22,13 +23,41 @@ all_projects() {
   done
 }
 
-base=""
-for ref in ${BASE_REF:-origin/main main}; do
-  if base=$(git merge-base HEAD "$ref" 2>/dev/null); then break; fi
-  base=""
-done
+# The merge base with main. A shallow or single-branch clone may lack origin/main or the
+# common ancestor: fetch main, deepen step by step, and only then give up.
+refs=${BASE_REF:-origin/main main}
+branch=main
+case "${BASE_REF:-}" in origin/?*) branch=${BASE_REF#origin/} ;; esac
+
+find_base() {
+  local ref
+  for ref in $refs; do
+    if git merge-base HEAD "$ref" 2>/dev/null; then return 0; fi
+  done
+  return 1
+}
+
+base=$(find_base || true)
+if [ -z "$base" ] && git remote get-url origin >/dev/null 2>&1; then
+  echo "check: no merge base with $refs; fetching $branch from origin"
+  git fetch --quiet --no-tags origin "+refs/heads/$branch:refs/remotes/origin/$branch" || true
+  base=$(find_base || true)
+  deepen=50
+  while [ -z "$base" ] && [ "$(git rev-parse --is-shallow-repository)" = true ] && [ "$deepen" -le 800 ]; do
+    echo "check: still no merge base; deepening the clone by $deepen commits"
+    git fetch --quiet --no-tags --deepen="$deepen" origin "+refs/heads/$branch:refs/remotes/origin/$branch" "$(git rev-parse HEAD)" || break
+    base=$(find_base || true)
+    deepen=$((deepen * 4))
+  done
+  if [ -z "$base" ] && [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+    echo "check: still no merge base; fetching the full history"
+    git fetch --quiet --no-tags --unshallow origin "+refs/heads/$branch:refs/remotes/origin/$branch" || true
+    base=$(find_base || true)
+  fi
+fi
 
 if [ -z "$base" ]; then
+  echo "check: no merge base with $refs; checking every project"
   slugs=$(all_projects)
 else
   files=$( { git diff --name-only "$base"; git ls-files --others --exclude-standard; } | sort -u)
