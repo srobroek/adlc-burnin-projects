@@ -45,7 +45,7 @@ if [ -z "$base" ] && git remote get-url origin >/dev/null 2>&1; then
   deepen=50
   while [ -z "$base" ] && [ "$(git rev-parse --is-shallow-repository)" = true ] && [ "$deepen" -le 800 ]; do
     echo "check: still no merge base; deepening the clone by $deepen commits"
-    git fetch --quiet --no-tags --deepen="$deepen" origin "+refs/heads/$branch:refs/remotes/origin/$branch" || break
+    git fetch --quiet --no-tags --deepen="$deepen" origin "+refs/heads/$branch:refs/remotes/origin/$branch" "$(git rev-parse HEAD)" || break
     base=$(find_base || true)
     deepen=$((deepen * 4))
   done
